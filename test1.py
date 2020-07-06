@@ -6,8 +6,9 @@
 
 # @Software: PyCharm
 
-
-import pyecharts
+import json
+from pyecharts import options as opts
+from pyecharts.charts import Graph
 import networkx
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -34,11 +35,6 @@ def read_xls(filename):
         xls_list.append(t)
 
     return xls_list
-
-
-print(read_xls('biao.xls')[0][7])
-
-print(read_xls('biao.xls')[0][6][:4])
 
 
 def cal_edge(xls_list):
@@ -80,4 +76,28 @@ def plot_people(people_data):
     plt.show()
 
 
-plot_people(cal_edge(read_xls('biao.xls')))
+def relation_graph():
+    with open("weibo.json", "r", encoding="utf-8") as f:
+        j = json.load(f)
+        nodes, links, categories, cont, mid, userl = j
+    c = (
+        Graph()
+            .add(
+            "",
+            nodes,
+            links,
+            categories,
+            repulsion=50,
+            linestyle_opts=opts.LineStyleOpts(curve=0.2),
+            label_opts=opts.LabelOpts(is_show=False),
+        )
+            .set_global_opts(
+            legend_opts=opts.LegendOpts(is_show=False),
+            title_opts=opts.TitleOpts(title="Graph-微博转发关系图"),
+        )
+            .render("graph_weibo.html")
+    )
+
+
+relation_list = ['户主', '配偶', '子', '女', '孙', '父母', '祖父母', '兄弟', '姐妹', '儿媳', '非亲属']
+relation_graph()
