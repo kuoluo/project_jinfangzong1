@@ -7,9 +7,7 @@
 # @Software: PyCharm
 
 import json
-from pyecharts import options as opts
-from pyecharts.charts import Graph
-import networkx
+import networkx as nx
 import matplotlib.pyplot as plt
 import seaborn as sns
 import xlrd
@@ -99,5 +97,58 @@ def relation_graph():
     )
 
 
+def write_data(xls_list):
+    temp_dict = {}
+    data_list = []
+    for i in xls_list:
+        temp_dict['name'] = i[3]+i[6][:]
+        temp_dict['des'] = i[4]
+        data_list.append(temp_dict.copy())
+    return data_list
+
+
+def temp_source_target(xls_list):
+    temp_relation_list = []
+    tmp = {}
+    xls_len = len(xls_list)
+    for i_index in range(xls_len):
+        if xls_list[i_index][4] == '户主':
+            j = 1
+            tmp['source'] = xls_list[i_index][3] + xls_list[i_index][6]
+            while i_index + j < xls_len and xls_list[i_index + j][4] != '户主':
+                tmp['target'] = xls_list[i_index + j][3] + xls_list[i_index+j][6]
+                tmp['name'] = xls_list[i_index + j][4]
+                tmp['des'] = xls_list[i_index + j][3] + '是' + xls_list[i_index][3] + '的' + tmp['name']
+                temp_relation_list.append(tmp.copy())
+                j += 1
+    return temp_relation_list
+
+def hujian_source_target(xls_list):
+    xls_len = len(xls_list)
+    temp_relation_list = []
+    tmp = {}
+    for i in range(xls_len):
+        for j in range(xls_len):
+            if i!=j:
+                if xls_list[i][3][0]==xls_list[j][3][0] and xls_list[i][3][1]==xls_list[j][3][1]:
+                    tmp['source'] = xls_list[i][3] + xls_list[i][6]
+                    tmp['target'] = xls_list[j][3] + xls_list[j][6]
+                    tmp['name'] = '兄弟'
+                    tmp['des'] = xls_list[i][3] + '是' + xls_list[j][3] + '的' + tmp['name']
+                    temp_relation_list.append(tmp.copy())
+                if len(xls_list[j][3])==3 and len(xls_list[i][3])==3 and xls_list[i][3][2] is not None and xls_list[j][3][2] is not None:
+                    if xls_list[i][3][0] == xls_list[j][3][0] and xls_list[i][3][2] == xls_list[j][3][2]:
+                        tmp['source'] = xls_list[i][3] + xls_list[i][6]
+                        tmp['target'] = xls_list[j][3] + xls_list[j][6]
+                        tmp['name'] = '兄弟'
+                        tmp['des'] = xls_list[i][3] + '是' + xls_list[j][3] + '的' + tmp['name']
+                        temp_relation_list.append(tmp.copy())
+    return temp_relation_list
+# tmp = {'source': '高育良', 'target': '侯亮平', 'name': '师生', 'des': '侯亮平是高育良的得意门生'}
+
+
 relation_list = ['户主', '配偶', '子', '女', '孙', '父母', '祖父母', '兄弟', '姐妹', '儿媳', '非亲属']
-relation_graph()
+xls = read_xls('biao.xls')
+print(write_data(xls))
+print(len(write_data(xls)))
+print(temp_source_target(xls).append(hujian_source_target(xls)))
